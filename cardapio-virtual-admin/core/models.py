@@ -25,7 +25,7 @@ class Produto(models.Model):
         return str(self.nome)
 
 class Pedido(models.Model):
-    clinteId = models.ForeignKey(Cliente, on_delete=models.DO_NOTHING)
+    clienteId = models.ForeignKey(Cliente, on_delete=models.DO_NOTHING)
     mesa=models.IntegerField()
     ativo = models.BooleanField()
     created_at = models.DateTimeField(auto_now_add=True)

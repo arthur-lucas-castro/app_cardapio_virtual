@@ -16,5 +16,16 @@
         </li>
         {% endfor %}
     </ul>
+
+    <form method="post" action="{% url 'realizar_pedido' %}">
+        {% csrf_token %}
+        <div>
+            <label for="mesa">Número da Mesa:</label>
+            <input type="number" id="mesa" name="mesa" required>
+        </div>
+        <button type="submit">Realizar Pedido</button>
+    </form>
+
+    <a href="{% url 'listar_produtos' %}">Continuar Comprando</a>
 </body>
 </html>
