@@ -1,6 +1,8 @@
 from django.http import HttpResponse
 from django.shortcuts import render, get_object_or_404, redirect
+from django.utils import timezone
 from .models import Produto, Cliente, Pedido, PedidoProduto
+from django.contrib.auth.decorators import login_required
 
 def login(request):
     if request.method == 'POST':
@@ -26,20 +28,21 @@ def login(request):
 def listar_produtos(request):
     produtos = Produto.objects.filter()
     carrinho = request.session.get('carrinho', {})
-    carrinho_count = len(carrinho)
+    carrinho_count = sum(carrinho.values())
     return render(request, 'produtos/lista_produtos.html', {'produtos': produtos, 'carrinho_count': carrinho_count})
 
 def adicionar_ao_carrinho(request, produto_id):
     produto = get_object_or_404(Produto, id=produto_id)
     
-    # Aqui você pode implementar a lógica para adicionar o produto ao carrinho.
-    # Exemplo: salvar na sessão do usuário
     carrinho = request.session.get('carrinho', {})
+
     
-    if produto_id in carrinho:
-        carrinho[produto_id]['quantidade'] += 1
+    if str(produto_id) in carrinho:
+        # Se o produto já estiver no carrinho, incrementa a quantidade
+        carrinho[str(produto_id)] += 1
     else:
-        carrinho[produto_id] = {'id': produto.id, 'nome': produto.nome, 'preco': str(produto.preco), 'quantidade': 1}
+        # Se o produto não estiver no carrinho, adiciona com quantidade 1
+        carrinho[str(produto_id)] = 1
     
     request.session['carrinho'] = carrinho
     
@@ -47,7 +50,22 @@ def adicionar_ao_carrinho(request, produto_id):
 
 def ver_carrinho(request):
     carrinho = request.session.get('carrinho', {})
-    return render(request, 'produtos/ver_carrinho.html', {'carrinho': carrinho})
+    produtos = Produto.objects.filter(id__in=carrinho.keys())
+
+    itens_carrinho = []
+    for produto in produtos:
+        itens_carrinho.append({
+            'produto': produto,
+            'quantidade': carrinho[str(produto.id)],
+            'total': produto.preco * carrinho[str(produto.id)]
+        })
+
+    total_carrinho = sum(item['total'] for item in itens_carrinho)
+
+    return render(request, 'produtos/ver_carrinho.html', {
+        'itens_carrinho': itens_carrinho,
+        'total_carrinho': total_carrinho
+    })
 
 def realizar_pedido(request):
     cliente_id = request.session.get('cliente_id')
@@ -96,3 +114,48 @@ def listar_pedidos_ativos(request):
         'pedidos_ativos': pedidos_ativos
     }
     return render(request, 'produtos/listar_pedidos_ativos.html', context)
+
+def listar_pedidos_cozinha(request):
+    pedidos_produto = PedidoProduto.objects.select_related('produtoId', 'pedidoId').filter(pedidoId__ativo=True).order_by('created_at')
+    
+    for pedido_produto in pedidos_produto:
+        delta = timezone.now() - pedido_produto.created_at
+        pedido_produto.tempo_decorrido = int(delta.total_seconds() // 60)  # Tempo em minutos
+
+    if request.method == 'POST':
+        pedido_produto_id = request.POST.get('pedido_produto_id')
+        novo_status = request.POST.get('status')
+
+        pedido_produto = PedidoProduto.objects.get(id=pedido_produto_id)
+        pedido_produto.status = novo_status
+        pedido_produto.save()
+
+        return redirect('listar_pedidos_cozinha')
+
+    return render(request, 'produtos/listar_pedidos_cozinha.html', {
+        'pedidos_produto': pedidos_produto,
+    })
+
+def filtrar_pedidos_por_mesa(request):
+    mesa = request.GET.get('mesa')
+    pedidos = Pedido.objects.filter(ativo=True)
+    
+    if mesa:
+        pedidos = pedidos.filter(mesa=mesa)
+    
+    detalhes_pedidos = {}
+    for pedido in pedidos:
+        detalhes_pedidos[pedido.id] = PedidoProduto.objects.filter(pedidoId=pedido)
+
+    if request.method == 'POST':
+        pedido_id = request.POST.get('pedido_id')
+        pedido = get_object_or_404(Pedido, id=pedido_id)
+        pedido.ativo = False
+        pedido.save()
+        return redirect('filtrar_pedidos_por_mesa')
+
+    return render(request, 'checkout/filtrar_pedidos_por_mesa.html', {
+        'pedidos': pedidos,
+        'detalhes_pedidos': detalhes_pedidos,
+        'mesa': mesa,
+    })
