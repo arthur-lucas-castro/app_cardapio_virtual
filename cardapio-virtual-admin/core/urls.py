@@ -1,6 +1,6 @@
 
 from django.urls import path
-from .views import listar_produtos, adicionar_ao_carrinho, ver_carrinho, login, realizar_pedido, pedido_realizado, listar_pedidos_ativos
+from .views import listar_produtos, adicionar_ao_carrinho, ver_carrinho, login, realizar_pedido, pedido_realizado, listar_pedidos_ativos, listar_pedidos_cozinha, filtrar_pedidos_por_mesa
 
 urlpatterns = [
     path('', login, name='login'),
@@ -10,5 +10,6 @@ urlpatterns = [
     path('realizar-pedido/', realizar_pedido, name='realizar_pedido'),
     path('pedido-realizado/<int:pedido_id>/', pedido_realizado, name='pedido_realizado'),
     path('pedidos-ativos/', listar_pedidos_ativos, name='listar_pedidos_ativos'),
-
+    path('cozinha/pedidos/', listar_pedidos_cozinha, name='listar_pedidos_cozinha'),
+    path('checkout/', filtrar_pedidos_por_mesa, name='filtrar_pedidos_por_mesa'),
 ]

@@ -1,31 +1,40 @@
+{% load static %}
+
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Seu Carrinho</title>
+    <title>Meu Carrinho</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
 </head>
 <body>
-    <h1>Seu Carrinho</h1>
-    <ul>
-        {% for item in carrinho.values %}
-        <li>
-            <h2>{{ item.nome }}</h2>
-            <p>Quantidade: {{ item.quantidade }}</p>
-            <p>Preço: R$ {{ item.preco }}</p>
-        </li>
-        {% endfor %}
-    </ul>
-
-    <form method="post" action="{% url 'realizar_pedido' %}">
-        {% csrf_token %}
-        <div>
-            <label for="mesa">Número da Mesa:</label>
-            <input type="number" id="mesa" name="mesa" required>
+    <div class="container mt-5">
+        <h1 class="mb-4">Meu Carrinho</h1>
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Produto</th>
+                    <th>Quantidade</th>
+                    <th>Total</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in itens_carrinho %}
+                <tr>
+                    <td>{{ item.produto.nome }}</td>
+                    <td>{{ item.quantidade }}</td>
+                    <td>R$ {{ item.total }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        <div class="text-right">
+            <strong>Total: R$ {{ total_carrinho }}</strong>
         </div>
-        <button type="submit">Realizar Pedido</button>
-    </form>
-
-    <a href="{% url 'listar_produtos' %}">Continuar Comprando</a>
+        <div class="text-right mt-3">
+            <a href="{% url 'realizar_pedido' %}" class="btn btn-success">Finalizar Pedido</a>
+        </div>
+    </div>
 </body>
 </html>
