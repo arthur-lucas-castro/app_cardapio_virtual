@@ -19,20 +19,23 @@
         <div class="container">
             <ul>
                 {% for pedido in pedidos_ativos %}
-                <li>
-                    <h2>Pedido ID: {{ pedido.id }}</h2>
-                    <p>Mesa: {{ pedido.mesa }}</p>
-                    <p>Data do Pedido: {{ pedido.created_at }}</p>
-                    <ul>
-                        {% for item in pedido.pedidoproduto_set.all %}
-                        <li>
-                            Produto: {{ item.produtoId.nome }}<br>
-                            Quantidade: {{ item.quantidade }}<br>
-                            Status: {{ item.get_status_display }}
-                        </li>
-                        {% endfor %}
-                    </ul>
-                </li>
+                <div class="container">
+                    <li>
+                        <h2>Pedido ID: {{ pedido.id }}</h2>
+                        <p>Mesa: {{ pedido.mesa }}</p>
+                        <p>Data do Pedido: {{ pedido.created_at }}</p>
+                        <ul>
+                            {% for item in pedido.pedidoproduto_set.all %}
+                            <li>
+                                Produto: {{ item.produtoId.nome }}<br>
+                                Quantidade: {{ item.quantidade }}<br>
+                                Status: {{ item.get_status_display }}
+                            </li>
+                            {% endfor %}
+                        </ul>
+                    </li>
+                </div>
+                
                 {% endfor %}
             </ul>
         </div>
