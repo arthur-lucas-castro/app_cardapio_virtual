@@ -7,11 +7,7 @@
     display: inline-flex;
     flex-direction: row;
     flex-wrap: wrap;
-    margin: 20px 20px 20px 20px;
-}
-
-.father{
-    display: inline-flex;
+    justify-content: space-evenly;
 }
 
 h1{
