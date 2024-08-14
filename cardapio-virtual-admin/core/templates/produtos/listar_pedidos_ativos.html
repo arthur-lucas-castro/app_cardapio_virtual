@@ -41,7 +41,9 @@
         </div>
     </div>
     {% else %}
-    <p>Você não tem nenhum pedido ativo no momento.</p>
+    <div id="exception" class="d-flex justify-content-center">
+        <p>Você não tem nenhum pedido ativo no momento.</p>
+    </div>
     {% endif %}
 
     <a href="{% url 'listar_produtos' %}" class="btn btn-secondary">Voltar ao Cardápio</a>

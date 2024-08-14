@@ -7,6 +7,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Meu Carrinho</title>
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <link rel="stylesheet" href="{% static 'css/ver_carrinho.css' %}">
 </head>
 <body>
     <div class="container mt-5">
@@ -34,7 +35,7 @@
         </div>
         <form method="post" action="{% url 'realizar_pedido' %}">
             {% csrf_token %}
-            <button type="submit" class="btn btn-primary">Realizar Pedido</button>
+            <button type="submit" class="btn btn-primary mb-2">Realizar Pedido</button>
         </form>
     </div>
 </body>
