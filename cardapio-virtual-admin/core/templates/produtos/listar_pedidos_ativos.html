@@ -19,7 +19,9 @@
                 {% for pedido in pedidos_ativos %}
                 <div class="container">
                     <li>
-                        <h2>Pedido ID: {{ pedido.id }}</h2>
+                        <h2>Pedido ID: {{ pedido.id }}
+                        <img src="../../../agulha.png">
+                        </h2><hr>
                         <p>Mesa: {{ pedido.mesa }}</p>
                         <p>Data do Pedido: {{ pedido.created_at }}</p>
                         <ul>
