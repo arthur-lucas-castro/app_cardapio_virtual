@@ -8,7 +8,10 @@ def login(request):
     if request.method == 'POST':
         nome = request.POST['nome']
         cpf = request.POST['cpf']
+        mesa = request.POST['mesa']
+        
 
+        request.session['mesa'] = mesa
         # Verifica se o cliente já existe pelo CPF
         cliente = Cliente.objects.filter(cpf=cpf).first()
 
@@ -20,6 +23,7 @@ def login(request):
             cliente = Cliente.objects.create(nome=nome, cpf=cpf)
             request.session['cliente_id'] = cliente.id
 
+        request.session['carrinho'] = {}
         # Redireciona para a página de produtos ou outra página
         return redirect('listar_produtos')
 
@@ -28,7 +32,10 @@ def login(request):
 def listar_produtos(request):
     produtos = Produto.objects.filter()
     carrinho = request.session.get('carrinho', {})
-    carrinho_count = sum(carrinho.values())
+    if(len(carrinho) < 0):
+        carrinho_count = 0
+    else:
+        carrinho_count = sum(carrinho.values())
     return render(request, 'produtos/lista_produtos.html', {'produtos': produtos, 'carrinho_count': carrinho_count})
 
 def adicionar_ao_carrinho(request, produto_id):
@@ -43,7 +50,7 @@ def adicionar_ao_carrinho(request, produto_id):
     else:
         # Se o produto não estiver no carrinho, adiciona com quantidade 1
         carrinho[str(produto_id)] = 1
-    
+    print(carrinho)
     request.session['carrinho'] = carrinho
     
     return redirect('listar_produtos')
@@ -72,11 +79,12 @@ def realizar_pedido(request):
     if not cliente_id:
         return redirect('login')  # Redireciona para login se o cliente não estiver autenticado
 
+
     cliente = Cliente.objects.get(id=cliente_id)
-    print(cliente.id)
     
     if request.method == 'POST':
-        mesa = request.POST['mesa']  # Supondo que o número da mesa seja fornecido
+        print('teste')
+        mesa = request.session['mesa']  # Supondo que o número da mesa seja fornecido
 
         # Cria o pedido e salva no banco de dados
         pedido = Pedido.objects.create(clienteId=cliente, mesa=mesa, ativo=True)
@@ -85,14 +93,16 @@ def realizar_pedido(request):
         carrinho = request.session.get('carrinho', {})
 
         # Cria registros em PedidoProduto para cada item no carrinho
-        for item in carrinho.values():
 
-            produto = Produto.objects.get(id=item['id'])
-            PedidoProduto.objects.create(
-                produtoId=produto,
-                pedidoId=pedido,
-                status=PedidoProduto.StatusPedidos.PEDIDO_REALIZADO
-            )
+        for key, value in carrinho.items():
+            print(carrinho)
+            for index in range(value):
+                produto = Produto.objects.get(id=key)
+                PedidoProduto.objects.create(
+                    produtoId=produto,
+                    pedidoId=pedido,
+                    status=PedidoProduto.StatusPedidos.PEDIDO_REALIZADO
+                )
 
         # Limpa o carrinho após realizar o pedido
         request.session['carrinho'] = {}  # Limpa o carrinho após realizar o pedido

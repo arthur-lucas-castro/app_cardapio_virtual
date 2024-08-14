@@ -32,9 +32,10 @@
         <div class="text-right">
             <strong>Total: R$ {{ total_carrinho }}</strong>
         </div>
-        <div class="text-right mt-3">
-            <a href="{% url 'realizar_pedido' %}" class="btn btn-success">Finalizar Pedido</a>
-        </div>
+        <form method="post" action="{% url 'realizar_pedido' %}">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-primary">Realizar Pedido</button>
+        </form>
     </div>
 </body>
 </html>
